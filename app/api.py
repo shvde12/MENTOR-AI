@@ -89,7 +89,8 @@ async def search_questions(request: SearchRequest):
         )
     
     try:
-        results = mentor.find_similar_questions(request.query, request.top_k)
+        top_k = request.top_k if request.top_k is not None else 5
+        results = mentor.find_similar_questions(request.query, top_k)
         return {"results": results}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

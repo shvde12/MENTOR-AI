@@ -16,8 +16,8 @@ class MentorAI:
         with open(filepath, 'r') as f:
             self.qa_database = json.load(f)
         
-    def train(self, qa_data: List[Dict] = None):
-        if qa_data:
+    def train(self, qa_data: List[Dict] | None = None):
+        if qa_data is not None:
             self.qa_database = qa_data
             
         if not self.qa_database:
