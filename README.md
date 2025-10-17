@@ -27,6 +27,10 @@ uv sync
 python -m app.train
 ```
 
+Alternatively, you can now train via API or UI:
+- UI: Open the app (see below) and click "Train Model" if the model is not loaded
+- API: `POST /api/train` will create sample data, train, and persist the model
+
 3. Run the API server:
 ```bash
 uvicorn app.api:app --host 0.0.0.0 --port 5000 --reload
@@ -45,6 +49,7 @@ python -m app.predict
 ### API Endpoints
 
 - `GET /api/health` - Check API status
+- `POST /api/train` - Train and load the model (creates sample data if missing)
 - `POST /api/evaluate` - Evaluate a question-answer pair
 - `POST /api/search` - Search for similar questions
 - `GET /api/topics` - Get available topics
