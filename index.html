@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mentor AI - Interactive Learning Assistant</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .status {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .status.online {
+            background: #10b981;
+            color: white;
+        }
+
+        .status.offline {
+            background: #ef4444;
+            color: white;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #374151;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 1em;
+            font-family: inherit;
+            transition: border-color 0.3s;
+        }
+
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 14px 30px;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            width: 100%;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .result {
+            margin-top: 30px;
+            padding: 25px;
+            background: #f9fafb;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .score-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .score-item {
+            text-align: center;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+        }
+
+        .score-value {
+            font-size: 2em;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .score-label {
+            font-size: 0.9em;
+            color: #6b7280;
+        }
+
+        .feedback {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+
+        .topic-badge {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 0.85em;
+            margin-bottom: 10px;
+        }
+
+        .search-section {
+            margin-top: 20px;
+        }
+
+        .search-results {
+            margin-top: 20px;
+        }
+
+        .search-item {
+            padding: 15px;
+            background: #f9fafb;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+
+        .similarity-bar {
+            height: 6px;
+            background: #e5e7eb;
+            border-radius: 3px;
+            margin-top: 8px;
+            overflow: hidden;
+        }
+
+        .similarity-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            transition: width 0.3s;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .tab {
+            padding: 10px 20px;
+            background: #f3f4f6;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.3s;
+        }
+
+        .tab.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎓 Mentor AI</h1>
+            <p>Your intelligent learning companion powered by neural networks</p>
+        </div>
+
+        <div class="card">
+            <div id="status" class="status offline">Checking status...</div>
+            
+            <div class="tabs">
+                <button class="tab active" onclick="switchTab('evaluate')">Evaluate Answer</button>
+                <button class="tab" onclick="switchTab('search')">Search Questions</button>
+            </div>
+
+            <div id="evaluate-tab" class="tab-content active">
+                <form id="evaluationForm">
+                    <div class="form-group">
+                        <label for="question">Your Question</label>
+                        <input type="text" id="question" placeholder="e.g., What is a list in Python?" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="answer">Your Answer</label>
+                        <textarea id="answer" placeholder="Type your answer here..." required></textarea>
+                    </div>
+
+                    <button type="submit" class="btn" id="submitBtn">
+                        Evaluate My Answer
+                    </button>
+                </form>
+
+                <div id="result" style="display: none;"></div>
+            </div>
+
+            <div id="search-tab" class="tab-content">
+                <div class="form-group">
+                    <label for="searchQuery">Search for Similar Questions</label>
+                    <input type="text" id="searchQuery" placeholder="e.g., python functions">
+                </div>
+
+                <button onclick="searchQuestions()" class="btn" id="searchBtn">
+                    Search
+                </button>
+
+                <div id="searchResults" class="search-results"></div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3 style="margin-bottom: 15px;">📚 Available Topics</h3>
+            <div id="topics" style="color: #6b7280;">Loading...</div>
+        </div>
+    </div>
+
+    <script>
+        let apiBase = '';
+
+        async function checkHealth() {
+            try {
+                const response = await fetch(`${apiBase}/api/health`);
+                const data = await response.json();
+                const statusEl = document.getElementById('status');
+                
+                if (data.model_loaded) {
+                    statusEl.className = 'status online';
+                    statusEl.textContent = '✓ Model Loaded & Ready';
+                } else {
+                    statusEl.className = 'status offline';
+                    statusEl.textContent = '⚠ Model Not Loaded';
+                }
+            } catch (error) {
+                const statusEl = document.getElementById('status');
+                statusEl.className = 'status offline';
+                statusEl.textContent = '✗ Service Unavailable';
+            }
+        }
+
+        async function loadTopics() {
+            try {
+                const response = await fetch(`${apiBase}/api/topics`);
+                const data = await response.json();
+                document.getElementById('topics').textContent = data.topics.map(t => t.toUpperCase()).join(' • ');
+            } catch (error) {
+                document.getElementById('topics').textContent = 'Unable to load topics';
+            }
+        }
+
+        function switchTab(tab) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            
+            event.target.classList.add('active');
+            document.getElementById(`${tab}-tab`).classList.add('active');
+        }
+
+        document.getElementById('evaluationForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const question = document.getElementById('question').value;
+            const answer = document.getElementById('answer').value;
+            const submitBtn = document.getElementById('submitBtn');
+            const resultDiv = document.getElementById('result');
+            
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="loading"></span> Evaluating...';
+            
+            try {
+                const response = await fetch(`${apiBase}/api/evaluate`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ question, answer })
+                });
+                
+                const data = await response.json();
+                
+                resultDiv.innerHTML = `
+                    <span class="topic-badge">${data.topic.toUpperCase()}</span>
+                    <h3 style="margin-bottom: 15px;">Matched: ${data.matched_question}</h3>
+                    
+                    <div class="score-grid">
+                        <div class="score-item">
+                            <div class="score-value">${(data.question_match_score * 100).toFixed(0)}%</div>
+                            <div class="score-label">Question Match</div>
+                        </div>
+                        <div class="score-item">
+                            <div class="score-value">${(data.answer_match_score * 100).toFixed(0)}%</div>
+                            <div class="score-label">Answer Quality</div>
+                        </div>
+                        <div class="score-item">
+                            <div class="score-value">${(data.overall_score * 100).toFixed(0)}%</div>
+                            <div class="score-label">Overall Score</div>
+                        </div>
+                    </div>
+                    
+                    <div class="feedback">
+                        <strong>💡 Feedback:</strong><br>
+                        ${data.feedback}
+                    </div>
+                `;
+                
+                resultDiv.style.display = 'block';
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div style="color: #ef4444;">
+                        <strong>Error:</strong> ${error.message}
+                    </div>
+                `;
+                resultDiv.style.display = 'block';
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Evaluate My Answer';
+            }
+        });
+
+        async function searchQuestions() {
+            const query = document.getElementById('searchQuery').value;
+            const searchBtn = document.getElementById('searchBtn');
+            const resultsDiv = document.getElementById('searchResults');
+            
+            if (!query) return;
+            
+            searchBtn.disabled = true;
+            searchBtn.innerHTML = '<span class="loading"></span> Searching...';
+            
+            try {
+                const response = await fetch(`${apiBase}/api/search`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ query, top_k: 5 })
+                });
+                
+                const data = await response.json();
+                
+                resultsDiv.innerHTML = data.results.map(item => `
+                    <div class="search-item">
+                        <span class="topic-badge">${item.topic.toUpperCase()}</span>
+                        <h4 style="margin: 10px 0;">${item.question}</h4>
+                        <p style="color: #6b7280; margin-bottom: 10px;">${item.answer}</p>
+                        <div class="similarity-bar">
+                            <div class="similarity-fill" style="width: ${item.similarity * 100}%"></div>
+                        </div>
+                        <small style="color: #9ca3af;">Similarity: ${(item.similarity * 100).toFixed(1)}%</small>
+                    </div>
+                `).join('');
+            } catch (error) {
+                resultsDiv.innerHTML = `
+                    <div style="color: #ef4444;">
+                        <strong>Error:</strong> ${error.message}
+                    </div>
+                `;
+            } finally {
+                searchBtn.disabled = false;
+                searchBtn.textContent = 'Search';
+            }
+        }
+
+        checkHealth();
+        loadTopics();
+        setInterval(checkHealth, 30000);
+    </script>
+</body>
+</html>
